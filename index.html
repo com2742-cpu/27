@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>민주주의 축구 토론 리그 - 급식 순서 결정 토론</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tone.js for Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pitch: '#128c3e',
+                        pitchDark: '#0f8037',
+                        gold: '#ffb703',
+                        navyDark: '#0e1626',
+                        navyCard: '#152138'
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        title: ['Gowun Dodum', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: #0d1527; 
+            color: #f1f5f9; 
+            overflow-x: hidden;
+        }
+        
+        .pitch-bg {
+            background-color: #128c3e;
+            background-image: repeating-linear-gradient(
+                90deg, 
+                #149643 0px, 
+                #149643 50px, 
+                #0f8037 50px, 
+                #0f8037 100px
+            );
+            border: 3px solid rgba(255, 255, 255, 0.85);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .pitch-line {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+        }
+
+        .ball-glow { 
+            filter: drop-shadow(0px 0px 14px #ffb703) drop-shadow(0px 0px 6px #ffffff); 
+        }
+
+        .glass-card {
+            background: rgba(21, 33, 56, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+        }
+
+        .speech-bubble {
+            position: absolute;
+            background: #0f172a;
+            border: 2px solid #ffb703;
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            width: 200px;
+            z-index: 40;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+            transform: translate(-50%, -125%);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 8px 0;
+            border-style: solid;
+            border-color: #0f172a transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Toast animation */
+        @keyframes toastIn {
+            from { transform: translateY(-100%) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .animate-toast {
+            animation: toastIn 0.3s ease-out forwards;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 183, 3, 0.5); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header Navigation Bar -->
+    <header class="bg-[#111a2e] border-b border-slate-800 px-4 md:px-6 py-3 sticky top-0 z-40 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl animate-bounce">⚽</span>
+            <div>
+                <h1 class="text-lg md:text-xl font-black text-amber-400 tracking-tight font-title flex items-center gap-2">
+                    민주주의 축구 토론 리그
+                    <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-normal">공개수업용</span>
+                </h1>
+                <p class="text-[11px] text-slate-400">급식 순서 결정 토론 & 타협안 수립 체임버</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/80 text-xs">
+            <button onclick="switchTab('login')" id="nav-login" class="tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow">
+                <i class="fa-solid fa-user-check"></i> 1. 로그인
+            </button>
+            <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+                <i class="fa-solid fa-comments"></i> 2. 모둠 토의&안 제출
+            </button>
+            <button onclick="switchTab('pitch')" id="nav-pitch" class="tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+                <i class="fa-solid fa-futbol"></i> 3. 축구장 경기장
+            </button>
+            <button onclick="switchTab('rank')" id="nav-rank" class="tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+                <i class="fa-solid fa-trophy"></i> 4. 순위&타협(생기부)
+            </button>
+        </nav>
+
+        <!-- Profile / Status Badge -->
+        <div class="flex items-center gap-2">
+            <div id="user-badge" class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> 미로그인 상태
+            </div>
+            <button onclick="toggleAudio()" id="audio-btn" class="text-xs bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 rounded border border-slate-700 text-amber-300 font-semibold transition flex items-center gap-1">
+                <i class="fa-solid fa-volume-high"></i> <span id="audio-label">소리 ON</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow p-4 md:p-6 max-w-[1600px] mx-auto w-full">
+
+        <!-- ================= TAB 1: 학생 로그인 화면 ================= -->
+        <section id="tab-login" class="tab-content space-y-6 max-w-2xl mx-auto py-6">
+            <div class="glass-card p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 border-amber-500/30">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-3xl mb-1">
+                        🎓
+                    </div>
+                    <h2 class="text-2xl font-black text-amber-400 font-title">토론 리그 학생 로그인</h2>
+                    <p class="text-xs text-slate-300">자신의 학년, 반, 번호, 이름 및 모둠 역할을 입력하고 참가하세요.</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">학년</label>
+                            <select id="login-grade" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-400 font-bold">
+                                <option value="1">1학년</option>
+                                <option value="2">2학년</option>
+                                <option value="3" selected>3학년</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">반 (1~7반)</label>
+                            <select id="login-class" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-amber-300 font-bold focus:outline-none focus:border-amber-400">
+                                <option value="1">1반</option>
+                                <option value="2" selected>2반</option>
+                                <option value="3">3반</option>
+                                <option value="4">4반</option>
+                                <option value="5">5반</option>
+                                <option value="6">6반</option>
+                                <option value="7">7반</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">번호</label>
+                            <input type="number" id="login-number" required min="1" max="40" value="15" placeholder="예: 15" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-400 font-bold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">이름</label>
+                            <input type="text" id="login-name" required value="홍길동" placeholder="예: 홍길동" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-amber-400 font-bold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">소속 모둠 (1~5모둠)</label>
+                            <select id="login-team" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-amber-300 font-bold focus:outline-none focus:border-amber-400">
+                                <option value="1모둠" selected>⚽ 1모둠 (손흥민 FC)</option>
+                                <option value="2모둠">🛡️ 2모둠 (김민재 FC)</option>
+                                <option value="3모둠">🧠 3모둠 (이강인 FC)</option>
+                                <option value="4모둠">⚡ 4모둠 (황희찬 FC)</option>
+                                <option value="5모둠">🧤 5모둠 (조현우 FC)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">모둠 내 역할 (4가지)</label>
+                            <select id="login-role" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-emerald-400 font-bold focus:outline-none focus:border-amber-400">
+                                <option value="발표자" selected>🗣️ 발표자 (주장의 대표)</option>
+                                <option value="서기">📝 서기 (의견 정리 및 기록)</option>
+                                <option value="전략가">🧠 전략가 (토론 안 기획)</option>
+                                <option value="수비수">🛡️ 수비수 (소수자 배려안 수립)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black rounded-2xl text-sm transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                        <span>🚀 토론 입장 및 참가하기</span>
+                    </button>
+                </form>
+
+                <div class="pt-4 border-t border-slate-800 text-slate-400 text-[11px] leading-relaxed space-y-1">
+                    <p class="font-bold text-amber-400/80"><i class="fa-solid fa-lightbulb"></i> 사용 안내:</p>
+                    <p>• 로그인 정보는 브라우저에 자동 저장되며 토론 리그 전체 활동 및 생기부 특기사항 생성에 활용됩니다.</p>
+                    <p>• 로그인 후 즉시 실시간 모둠 토의 및 경기장에 참여할 수 있습니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: 모둠 실시간 토의 & 안 제출 ================= -->
+        <section id="tab-chat" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div class="lg:col-span-7 glass-card p-5 rounded-2xl shadow-2xl flex flex-col justify-between h-[600px]">
+                <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2 font-title">
+                            💬 <span id="chat-team-name">1모둠</span> 실시간 토의 (DM)
+                        </h3>
+                        <p class="text-[11px] text-slate-400">같은 모둠원끼리 자유롭게 대화하며 제출할 안을 협의하세요.</p>
+                    </div>
+                    <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-700 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 실시간 연결됨
+                    </span>
+                </div>
+
+                <div id="chat-log-box" class="flex-grow my-3 space-y-3 overflow-y-auto pr-2 text-xs">
+                    <!-- Chat messages will be populated dynamically -->
+                </div>
+
+                <form onsubmit="sendChatMessage(event)" class="flex gap-2 border-t border-slate-700/80 pt-3">
+                    <input type="text" id="chat-input-text" required placeholder="모둠원들에게 보낼 메시지를 입력하세요..." class="flex-grow bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400">
+                    <button type="submit" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow active:scale-95 flex items-center gap-1">
+                        <i class="fa-solid fa-paper-plane"></i> 전송
+                    </button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-5 glass-card p-5 rounded-2xl shadow-2xl space-y-4 h-[600px] overflow-y-auto">
+                <div class="border-b border-slate-700 pb-3">
+                    <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2 font-title">
+                        ✍️ 우리 모둠 최종 안 작성 & 제출
+                    </h3>
+                    <p class="text-[11px] text-slate-400">토의 내용을 바탕으로 토론 경기장에 제출할 최종 급식 순서 안을 작성합니다.</p>
+                </div>
+
+                <form onsubmit="saveProposal(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">제안 안 제목</label>
+                        <input type="text" id="prop-title" required placeholder="예: 요일별 학년 순환 배식 및 몸 불편 학생 우선제" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-400 font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">핵심 제안 내용 (급식 순서 및 규칙)</label>
+                        <textarea id="prop-content" required rows="3" placeholder="예: 월요일은 3학년->2학년->1학년 순으로 배식하고, 매일 요일마다 순서를 순환합니다. 부상 학생이나 다리가 불편한 학생은 최우선 배식권을 부여합니다." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-400 leading-relaxed"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1 text-emerald-400">🛡️ 소수자/배려 대상자 지원 방안</label>
+                        <input type="text" id="prop-minority" required placeholder="예: 보건실 이용 학생, 몸이 아픈 학생, 급식 도우미 학생 우선 배식" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1 text-amber-300">🤝 대화와 타협을 위한 양보 가능 지점</label>
+                        <input type="text" id="prop-compromise" required placeholder="예: 타 모둠이 반대할 경우 2주 단위 순환으로 조정 가능함" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg active:scale-95 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i> ⚽ 토론 경기장에 안 제출하기
+                    </button>
+                </form>
+
+                <!-- Status of current proposal -->
+                <div id="proposal-status-box" class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-[11px] space-y-1">
+                    <span class="font-bold text-amber-400">📌 제출 현황:</span>
+                    <p id="proposal-status-text" class="text-slate-400">아직 제출된 안이 없습니다. 위 양식을 작성하여 제출하세요.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: 축구장 경기장 토론 ================= -->
+        <section id="tab-pitch" class="tab-content hidden space-y-5">
+            <div class="flex flex-wrap items-center justify-between bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl animate-bounce">🏆</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-400 font-title flex items-center gap-2">
+                            경기장 피치 토론 모드
+                            <span id="pitch-mode-badge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-normal">자유 심의 모드</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400">자유 피치 심의 또는 1~5모둠 대진표 토너먼트 리그 경기를 진행할 수 있습니다.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchPitchSubMode('free')" id="btn-mode-free" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-amber-500 text-slate-950 shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-futbol"></i> ⚽ 자유 피치 심의
+                    </button>
+                    <button onclick="switchPitchSubMode('tournament')" id="btn-mode-tournament" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-slate-800 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy"></i> 🏆 토너먼트 리그 경기
+                    </button>
+                </div>
+            </div>
+
+            <!-- Free Pitch View (Default) -->
+            <div id="pitch-free-container" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- 2D Pitch View -->
+                <div class="lg:col-span-8 flex flex-col gap-3">
+                    <div class="pitch-bg h-[480px] rounded-3xl p-6 flex flex-col justify-between overflow-hidden relative shadow-2xl border-4 border-slate-700">
+                        
+                        <!-- Soccer Field Markings -->
+                        <div class="pitch-line top-0 bottom-0 left-1/2 -translate-x-1/2 w-0"></div>
+                        <div class="pitch-line top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full"></div>
+                        <div class="pitch-line top-0 left-1/2 -translate-x-1/2 w-48 h-24 border-t-0 rounded-b-xl"></div>
+                        <div class="pitch-line bottom-0 left-1/2 -translate-x-1/2 w-48 h-24 border-b-0 rounded-t-xl"></div>
+
+                        <!-- Top Title Banner inside Pitch -->
+                        <div class="z-10 flex justify-between items-center bg-slate-950/80 px-4 py-2 rounded-2xl border border-white/20 backdrop-blur-md">
+                            <span class="text-xs font-bold text-amber-400 flex items-center gap-2">
+                                ⚽ 라이브 제안안 피치
+                            </span>
+                            <span id="active-speaker-tag" class="text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                                발언 대기 중
+                            </span>
+                        </div>
+
+                        <!-- Speech Bubble Container -->
+                        <div id="speech-bubble-elem" class="speech-bubble hidden">
+                            <div class="font-bold text-amber-400 text-[11px] mb-0.5" id="bubble-team-title">1모둠 발언</div>
+                            <div class="text-[11px] text-slate-200 leading-snug" id="bubble-text">"저희 모둠은 요일별 순환 배식안을 제안합니다!"</div>
+                        </div>
+
+                        <!-- Players (Team Tokens) on Pitch -->
+                        <div class="z-10 grid grid-cols-5 gap-2 my-auto px-4">
+                            <!-- Team 1 Token -->
+                            <button onclick="selectTeamPitch('1모둠')" id="token-1모둠" class="team-token flex flex-col items-center gap-1 group transition transform hover:scale-110 focus:outline-none">
+                                <div class="w-14 h-14 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center text-xl shadow-xl group-hover:ring-4 ring-amber-400/50">
+                                    ⚽
+                                </div>
+                                <span class="bg-slate-900/90 text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-500/50">1모둠</span>
+                            </button>
+
+                            <!-- Team 2 Token -->
+                            <button onclick="selectTeamPitch('2모둠')" id="token-2모둠" class="team-token flex flex-col items-center gap-1 group transition transform hover:scale-110 focus:outline-none">
+                                <div class="w-14 h-14 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center text-xl shadow-xl group-hover:ring-4 ring-blue-400/50">
+                                    🛡️
+                                </div>
+                                <span class="bg-slate-900/90 text-blue-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-blue-500/50">2모둠</span>
+                            </button>
+
+                            <!-- Team 3 Token -->
+                            <button onclick="selectTeamPitch('3모둠')" id="token-3모둠" class="team-token flex flex-col items-center gap-1 group transition transform hover:scale-110 focus:outline-none">
+                                <div class="w-14 h-14 rounded-full bg-purple-600 border-2 border-white flex items-center justify-center text-xl shadow-xl group-hover:ring-4 ring-purple-400/50">
+                                    🧠
+                                </div>
+                                <span class="bg-slate-900/90 text-purple-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-purple-500/50">3모둠</span>
+                            </button>
+
+                            <!-- Team 4 Token -->
+                            <button onclick="selectTeamPitch('4모둠')" id="token-4모둠" class="team-token flex flex-col items-center gap-1 group transition transform hover:scale-110 focus:outline-none">
+                                <div class="w-14 h-14 rounded-full bg-rose-600 border-2 border-white flex items-center justify-center text-xl shadow-xl group-hover:ring-4 ring-rose-400/50">
+                                    ⚡
+                                </div>
+                                <span class="bg-slate-900/90 text-rose-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-rose-500/50">4모둠</span>
+                            </button>
+
+                            <!-- Team 5 Token -->
+                            <button onclick="selectTeamPitch('5모둠')" id="token-5모둠" class="team-token flex flex-col items-center gap-1 group transition transform hover:scale-110 focus:outline-none">
+                                <div class="w-14 h-14 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-xl shadow-xl group-hover:ring-4 ring-emerald-400/50">
+                                    🧤
+                                </div>
+                                <span class="bg-slate-900/90 text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-500/50">5모둠</span>
+                            </button>
+                        </div>
+
+                        <!-- Pitch Controls Bottom Bar -->
+                        <div class="z-10 flex flex-wrap justify-center gap-2 bg-slate-950/80 p-2.5 rounded-2xl border border-white/20 backdrop-blur-md">
+                            <button onclick="playWhistleSound()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition shadow active:scale-95 flex items-center gap-1">
+                                📢 호루라기(발언권)
+                            </button>
+                            <button onclick="triggerPitchAction('shoot')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs transition shadow active:scale-95 flex items-center gap-1">
+                                ⚽ 슈팅 (제안 발표)
+                            </button>
+                            <button onclick="triggerPitchAction('foul')" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs transition shadow active:scale-95 flex items-center gap-1">
+                                🟨 경고 카드 (소수자 배려 미흡)
+                            </button>
+                            <button onclick="triggerPitchAction('goal')" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition shadow active:scale-95 flex items-center gap-1">
+                                🟩 득점! (타협 합의 달성)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Proposal Detail Side Panel -->
+                <div class="lg:col-span-4 glass-card p-5 rounded-3xl shadow-2xl flex flex-col justify-between h-[480px]">
+                    <div>
+                        <div class="border-b border-slate-700 pb-3 mb-3">
+                            <span class="text-[10px] font-bold text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full bg-emerald-950/50">피치 심의 모듈</span>
+                            <h3 id="detail-team-title" class="text-base font-bold text-amber-400 font-title mt-1">
+                                ⚽ 1모둠 제안 안 심의
+                            </h3>
+                        </div>
+
+                        <div id="detail-body-box" class="space-y-3 text-xs overflow-y-auto max-h-[340px] pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                        * 선수 토큰을 클릭하여 각 모둠의 제안 안을 심의하고 피치 액션을 실행하세요.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tournament Pitch View (New Interactive Tournament Mode) -->
+            <div id="pitch-tournament-container" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- Tournament Pitch Field -->
+                <div class="lg:col-span-8 flex flex-col gap-3">
+                    <div class="pitch-bg h-[480px] rounded-3xl p-6 flex flex-col justify-between overflow-hidden relative shadow-2xl border-4 border-slate-700">
+                        
+                        <!-- Soccer Field Markings -->
+                        <div class="pitch-line top-0 bottom-0 left-1/2 -translate-x-1/2 w-0"></div>
+                        <div class="pitch-line top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full"></div>
+
+                        <!-- Match Status Header inside Field -->
+                        <div class="z-10 flex justify-between items-center bg-slate-950/80 px-4 py-2 rounded-2xl border border-white/20 backdrop-blur-md">
+                            <span id="tournament-match-title" class="text-xs font-bold text-amber-400 flex items-center gap-2 font-title">
+                                🏆 [예선 1경기] 4모둠 VS 5모둠
+                            </span>
+                            <span id="tournament-match-status" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                                ⚽ 경기 진행 중
+                            </span>
+                        </div>
+
+                        <!-- Face-Off Visual Field Area -->
+                        <div id="tournament-pitch-arena" class="z-10 grid grid-cols-2 gap-6 my-auto px-4 items-center">
+                            <!-- Dynamic Content Rendered by JS -->
+                        </div>
+
+                        <!-- Tournament Match Control Panel -->
+                        <div class="z-10 flex flex-wrap justify-center items-center gap-2 bg-slate-950/80 p-2.5 rounded-2xl border border-white/20 backdrop-blur-md">
+                            <button onclick="triggerTournamentSpeech('A')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 flex items-center gap-1">
+                                🗣️ 모둠 A 안 발표
+                            </button>
+                            <button onclick="triggerTournamentSpeech('B')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 flex items-center gap-1">
+                                🗣️ 모둠 B 안 발표
+                            </button>
+                            <span class="text-slate-600">|</span>
+                            <button onclick="addTournamentVote('A')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 flex items-center gap-1">
+                                ⚽ A팀 득표 (+1)
+                            </button>
+                            <button onclick="addTournamentVote('B')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl font-bold text-xs transition active:scale-95 flex items-center gap-1">
+                                ⚽ B팀 득표 (+1)
+                            </button>
+                            <button onclick="finishCurrentTournamentMatch()" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl font-black text-xs transition active:scale-95 flex items-center gap-1">
+                                🏁 승자 판정 & 다음 진출
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tournament Bracket Right Panel -->
+                <div class="lg:col-span-4 glass-card p-5 rounded-3xl shadow-2xl flex flex-col justify-between h-[480px]">
+                    <div>
+                        <div class="border-b border-slate-700 pb-2.5 mb-3 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-amber-400 font-title flex items-center gap-1.5">
+                                🏆 5모둠 토너먼트 대진표
+                            </h3>
+                            <button onclick="resetTournament()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-rose-400 border border-slate-700 px-2 py-1 rounded-lg transition font-semibold">
+                                🔄 대진 리셋
+                            </button>
+                        </div>
+
+                        <!-- Bracket Tree View -->
+                        <div id="tournament-bracket-tree" class="space-y-2.5 text-xs overflow-y-auto max-h-[350px] pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+                        * 토론 공방 및 학급 투표를 거쳐 최종 우승 급식 순서 안을 결정하세요.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: 순위 & 타협 & 생활기록부 ================= -->
+        <section id="tab-rank" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                
+                <!-- Proposals Voting & Evaluation Matrix -->
+                <div class="lg:col-span-7 glass-card p-5 rounded-2xl shadow-2xl space-y-4">
+                    <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base font-bold text-amber-400 font-title flex items-center gap-2">
+                                📊 모둠별 제안 안 평가 및 별점 심사
+                            </h3>
+                            <p class="text-[11px] text-slate-400">관용, 대화와 타협, 소수자 존중의 3대 민주적 원칙으로 평가하세요.</p>
+                        </div>
+                    </div>
+
+                    <div id="evaluation-list-box" class="space-y-3 text-xs">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Student Record (생기부) Generator Panel -->
+                <div class="lg:col-span-5 glass-card p-5 rounded-2xl shadow-2xl space-y-4 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="border-b border-slate-700 pb-3">
+                            <h3 class="text-base font-bold text-emerald-400 font-title flex items-center gap-2">
+                                📜 학생 생활기록부(생기부) 특기사항 자동 생성
+                            </h3>
+                            <p class="text-[11px] text-slate-400">로그인 정보와 토론 활동 기록에 기반하여 생성된 평가 문구입니다.</p>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-700 p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-300 font-bold" id="record-student-info">3학년 2반 15번 홍길동</span>
+                                <span class="text-amber-400 text-[10px] bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30" id="record-student-role">발표자</span>
+                            </div>
+                            <div id="record-text-box" class="text-xs text-slate-200 leading-relaxed font-sans bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                로그인 후 토론 활동을 진행하시면 여기에 맞춤형 생활기록부 세부능력 및 특기사항 문구가 자동으로 생성됩니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <button onclick="copyRecordText()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition shadow active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-copy"></i> 생기부 특기사항 문구 복사하기
+                        </button>
+                        <p class="text-[10px] text-center text-slate-400">클립보드에 복사하여 나이스(NEIS) 등에 바로 활용할 수 있습니다.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Notification Overlay -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 rounded-3xl border border-amber-500/40 shadow-2xl space-y-4 text-center">
+            <div id="modal-icon" class="text-4xl">⚽</div>
+            <h3 id="modal-title" class="text-lg font-bold text-amber-400 font-title">알림</h3>
+            <p id="modal-message" class="text-xs text-slate-300 leading-relaxed"></p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-xs transition">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Global State Variable
+        const state = {
+            currentUser: null, // { grade, class, number, name, team, role, loggedIn: true }
+            soundEnabled: true,
+            activeTeamPitch: '1모둠',
+            pitchSubMode: 'free', // 'free' or 'tournament'
+            
+            tournament: {
+                activeMatchIndex: 0,
+                matches: [
+                    { id: 0, name: '8강 예선전', teamA: '4모둠', teamB: '5모둠', scoreA: 0, scoreB: 0, winner: null, status: 'ready' },
+                    { id: 1, name: '준결승 1경기', teamA: '1모둠', teamB: '2모둠', scoreA: 0, scoreB: 0, winner: null, status: 'ready' },
+                    { id: 2, name: '준결승 2경기', teamA: '3모둠', teamB: null, scoreA: 0, scoreB: 0, winner: null, status: 'ready' }, // teamB gets set by match 0 winner
+                    { id: 3, name: '🏆 최종 결승전', teamA: null, teamB: null, scoreA: 0, scoreB: 0, winner: null, status: 'ready' }
+                ]
+            },
+            
+            proposals: {
+                '1모둠': {
+                    title: '요일별 순환 배식 & 몸 불편 학생 우선제',
+                    content: '월요일부터 금요일까지 학년/반 순서를 순환합니다. 부상자나 급식 도우미는 항상 1순위 배식을 보장합니다.',
+                    minority: '부상 학생 및 장애학생 전용 우선 배식대 운영',
+                    compromise: '특정 요일 반발 시 2주 단위 교대 방식 타협 가능',
+                    author: '1모둠 팀원 일동',
+                    stars: { tolerance: 5, compromise: 4, minority: 5 }
+                },
+                '2모둠': {
+                    title: '학급별 대의원 제비뽑기 순서 결정안',
+                    content: '매주 월요일 아침 학급 대의원이 제비뽑기로 한 주간의 배식 순서를 공정하게 결정합니다.',
+                    minority: '건강 이상 학생 보건실 확인증 제출 시 우선 배식',
+                    compromise: '제비뽑기 연속 하위 순위 학급 가산점 부여',
+                    author: '2모둠 팀원 일동',
+                    stars: { tolerance: 4, compromise: 4, minority: 3 }
+                },
+                '3모둠': {
+                    title: '3학년 시험 기간 우선 배식 + 순환 혼합안',
+                    content: '고사 기간이나 진학 준비 기간에는 상급학년을 우선 배식하고, 평시에는 학년별 순환제를 적용합니다.',
+                    minority: '급식실 이동이 어려운 소수 학생 지정 좌석 마련',
+                    compromise: '1,2학년 시험 기간에도 해당 학년 우선권 상호 인정',
+                    author: '3모둠 팀원 일동',
+                    stars: { tolerance: 4, compromise: 5, minority: 4 }
+                },
+                '4모둠': {
+                    title: '급식 질서 스탬프 포인트 우수반 우선 배식안',
+                    content: '질서 지도 및 줄서기를 잘 지킨 반에게 포인트를 부여하여 다음 주 배식 우선권을 부여합니다.',
+                    minority: '질서 점수와 무관하게 모든 약자 학생 우선 처리',
+                    compromise: '포인트 차등 폭을 줄여 상호 불만 완화',
+                    author: '4모둠 팀원 일동',
+                    stars: { tolerance: 3, compromise: 4, minority: 4 }
+                },
+                '5모둠': {
+                    title: '2분할 시간 차 배식 및 소수자 완충 시간제',
+                    content: '배식 시간을 15분 단위로 2차 분할하여 인원 밀집을 방지하고 안전사고를 예방합니다.',
+                    minority: '배식 개시 5분 전 소수자/휠체어 이동 학생 사전 배식',
+                    compromise: '시간 차에 따른 잔반 차이 발생 시 메뉴 고른 배분 보장',
+                    author: '5모둠 팀원 일동',
+                    stars: { tolerance: 5, compromise: 5, minority: 5 }
+                }
+            },
+            chatLogs: {
+                '1모둠': [
+                    { sender: '손흥민(전략가)', text: '우리 모둠은 요일별 순환 배식이 가장 공정할 것 같아요!', time: '10:01' },
+                    { sender: '김민지(수비수)', text: '다리가 아프거나 장애가 있는 학생 배려 규칙도 꼭 포함합시다.', time: '10:02' }
+                ],
+                '2모둠': [
+                    { sender: '이강인(발표자)', text: '제비뽑기로 순서를 결정하면 운이라 모두가 납득할 수 있습니다.', time: '10:01' }
+                ],
+                '3모둠': [], '4모둠': [], '5모둠': []
+            }
+        };
+
+        // Web Audio Synth setup for whistle and goal sounds
+        let synth = null;
+        try {
+            synth = new Tone.Synth().toDestination();
+        } catch(e) {
+            console.log("Audio synth initialization deferred");
+        }
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check local storage for existing session
+            const savedUser = localStorage.getItem('debate_user_session');
+            if (savedUser) {
+                try {
+                    state.currentUser = JSON.parse(savedUser);
+                    updateUserBadgeUI();
+                    showToast(`👋 다시 오신 것을 환영합니다, ${state.currentUser.name}님!`, 'info');
+                } catch(e) {
+                    localStorage.removeItem('debate_user_session');
+                }
+            }
+
+            // Render pitch initial details
+            renderPitchDetail('1모둠');
+            renderEvaluationList();
+            renderChatLogs();
+            updateStudentRecordText();
+            renderTournamentBracket();
+            renderTournamentPitch();
+        });
+
+        // Switch pitch sub mode: free pitch vs tournament
+        function switchPitchSubMode(mode) {
+            state.pitchSubMode = mode;
+            const freeContainer = document.getElementById('pitch-free-container');
+            const tourContainer = document.getElementById('pitch-tournament-container');
+            const btnFree = document.getElementById('btn-mode-free');
+            const btnTour = document.getElementById('btn-mode-tournament');
+            const badge = document.getElementById('pitch-mode-badge');
+
+            if (mode === 'tournament') {
+                freeContainer.classList.add('hidden');
+                tourContainer.classList.remove('hidden');
+                btnTour.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-amber-500 text-slate-950 shadow flex items-center gap-1.5";
+                btnFree.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-slate-800 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5";
+                if (badge) {
+                    badge.innerText = "🏆 토너먼트 리그 모드";
+                    badge.className = "text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-normal";
+                }
+                renderTournamentBracket();
+                renderTournamentPitch();
+            } else {
+                tourContainer.classList.add('hidden');
+                freeContainer.classList.remove('hidden');
+                btnFree.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-amber-500 text-slate-950 shadow flex items-center gap-1.5";
+                btnTour.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs transition bg-slate-800 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5";
+                if (badge) {
+                    badge.innerText = "자유 심의 모드";
+                    badge.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-normal";
+                }
+            }
+
+            playClickSound();
+        }
+
+        // Render Tournament Bracket Side Panel
+        function renderTournamentBracket() {
+            const container = document.getElementById('tournament-bracket-tree');
+            if (!container) return;
+
+            const matches = state.tournament.matches;
+            const activeIdx = state.tournament.activeMatchIndex;
+
+            container.innerHTML = matches.map((m, idx) => {
+                const isActive = idx === activeIdx && m.status !== 'finished';
+                const isFinished = m.status === 'finished';
+
+                const cardBorder = isActive ? 'border-amber-400 bg-amber-950/30 ring-2 ring-amber-400/30' : 'border-slate-800 bg-slate-900/80';
+
+                return `
+                    <div onclick="selectTournamentMatch(${idx})" class="cursor-pointer p-3 rounded-xl border ${cardBorder} transition hover:border-amber-500/60 space-y-1.5">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-bold text-amber-300 font-title flex items-center gap-1">
+                                ${m.name}
+                                ${isActive ? '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>' : ''}
+                            </span>
+                            <span class="text-[10px] px-2 py-0.5 rounded ${isFinished ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-800 text-slate-400'}">
+                                ${isFinished ? `승자: ${m.winner}` : (isActive ? '경기 중' : '대기')}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="p-2 rounded-lg ${m.winner === m.teamA ? 'bg-emerald-900/50 border border-emerald-500/50 font-bold text-emerald-300' : 'bg-slate-950 text-slate-300'} flex justify-between items-center">
+                                <span>${m.teamA || '미정'}</span>
+                                <span class="font-bold text-amber-400">${m.scoreA}</span>
+                            </div>
+                            <div class="p-2 rounded-lg ${m.winner === m.teamB ? 'bg-emerald-900/50 border border-emerald-500/50 font-bold text-emerald-300' : 'bg-slate-950 text-slate-300'} flex justify-between items-center">
+                                <span>${m.teamB || '미정'}</span>
+                                <span class="font-bold text-amber-400">${m.scoreB}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Active Match Field Face-off
+        function renderTournamentPitch() {
+            const arena = document.getElementById('tournament-pitch-arena');
+            const matchTitle = document.getElementById('tournament-match-title');
+            const matchStatus = document.getElementById('tournament-match-status');
+            if (!arena) return;
+
+            const matches = state.tournament.matches;
+            const currentMatch = matches[state.tournament.activeMatchIndex];
+
+            if (!currentMatch) return;
+
+            matchTitle.innerText = `🏆 [${currentMatch.name}] ${currentMatch.teamA || '미정'} VS ${currentMatch.teamB || '미정'}`;
+
+            if (currentMatch.status === 'finished') {
+                matchStatus.innerText = `🏆 경기 종료 (승자: ${currentMatch.winner})`;
+                matchStatus.className = "text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold";
+            } else if (!currentMatch.teamA || !currentMatch.teamB) {
+                matchStatus.innerText = `⏳ 이전 경기 진행 대기 중`;
+                matchStatus.className = "text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-0.5 rounded-full font-bold";
+            } else {
+                matchStatus.innerText = `⚽ LIVE 토론 경기 중`;
+                matchStatus.className = "text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-bold animate-pulse";
+            }
+
+            const propA = state.proposals[currentMatch.teamA];
+            const propB = state.proposals[currentMatch.teamB];
+
+            arena.innerHTML = `
+                <!-- Team A Side -->
+                <div class="glass-card p-4 rounded-2xl border ${currentMatch.winner === currentMatch.teamA ? 'border-amber-400 bg-amber-950/40' : 'border-slate-700'} flex flex-col items-center text-center space-y-2">
+                    <div class="w-16 h-16 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center text-2xl shadow-xl ball-glow">
+                        ⚽
+                    </div>
+                    <div>
+                        <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">
+                            ${currentMatch.teamA || '미정 모둠'}
+                        </span>
+                        <h4 class="font-bold text-white text-xs mt-1.5 line-clamp-2">${propA ? escapeHtml(propA.title) : '제안 대기 중'}</h4>
+                    </div>
+                    <div class="text-2xl font-black text-amber-400 font-title bg-slate-950/80 w-full py-1 rounded-xl border border-slate-800">
+                        ${currentMatch.scoreA} 점
+                    </div>
+                </div>
+
+                <!-- Team B Side -->
+                <div class="glass-card p-4 rounded-2xl border ${currentMatch.winner === currentMatch.teamB ? 'border-amber-400 bg-amber-950/40' : 'border-slate-700'} flex flex-col items-center text-center space-y-2">
+                    <div class="w-16 h-16 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center text-2xl shadow-xl ball-glow">
+                        🛡️
+                    </div>
+                    <div>
+                        <span class="text-xs bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full font-bold">
+                            ${currentMatch.teamB || '미정 모둠'}
+                        </span>
+                        <h4 class="font-bold text-white text-xs mt-1.5 line-clamp-2">${propB ? escapeHtml(propB.title) : '제안 대기 중'}</h4>
+                    </div>
+                    <div class="text-2xl font-black text-amber-400 font-title bg-slate-950/80 w-full py-1 rounded-xl border border-slate-800">
+                        ${currentMatch.scoreB} 점
+                    </div>
+                </div>
+            `;
+        }
+
+        // Select match from bracket
+        function selectTournamentMatch(matchIdx) {
+            state.tournament.activeMatchIndex = matchIdx;
+            renderTournamentBracket();
+            renderTournamentPitch();
+            playClickSound();
+        }
+
+        // Trigger speech action in tournament
+        function triggerTournamentSpeech(teamKey) {
+            const currentMatch = state.tournament.matches[state.tournament.activeMatchIndex];
+            if (!currentMatch || !currentMatch.teamA || !currentMatch.teamB) {
+                showToast('아직 대진 팀이 확정되지 않았습니다.', 'error');
+                return;
+            }
+
+            const teamName = teamKey === 'A' ? currentMatch.teamA : currentMatch.teamB;
+            const prop = state.proposals[teamName];
+
+            playWhistleSound();
+            showModal(
+                `📢 ${teamName} 안 발표 & 변론`,
+                `<div class="space-y-2 text-left text-xs text-slate-300">
+                    <p class="font-bold text-amber-400 text-sm">"${prop ? escapeHtml(prop.title) : '제안 안'}"</p>
+                    <p><b>핵심 내용:</b> ${prop ? escapeHtml(prop.content) : ''}</p>
+                    <p class="text-emerald-400"><b>소수자 배려:</b> ${prop ? escapeHtml(prop.minority) : ''}</p>
+                    <p class="text-amber-300"><b>타협안:</b> ${prop ? escapeHtml(prop.compromise) : ''}</p>
+                </div>`
+            );
+        }
+
+        // Add Vote / Score
+        function addTournamentVote(teamKey) {
+            const currentMatch = state.tournament.matches[state.tournament.activeMatchIndex];
+            if (!currentMatch || !currentMatch.teamA || !currentMatch.teamB) {
+                showToast('대진 팀이 확정된 후 투표할 수 있습니다.', 'error');
+                return;
+            }
+
+            if (currentMatch.status === 'finished') {
+                showToast('이미 종료된 경기입니다.', 'error');
+                return;
+            }
+
+            if (teamKey === 'A') {
+                currentMatch.scoreA += 1;
+                showToast(`⚽ ${currentMatch.teamA} 득표!`, 'info');
+            } else {
+                currentMatch.scoreB += 1;
+                showToast(`⚽ ${currentMatch.teamB} 득표!`, 'info');
+            }
+
+            playGoalSound();
+            renderTournamentBracket();
+            renderTournamentPitch();
+        }
+
+        // Finish current match and advance winner
+        function finishCurrentTournamentMatch() {
+            const matches = state.tournament.matches;
+            const activeIdx = state.tournament.activeMatchIndex;
+            const match = matches[activeIdx];
+
+            if (!match || !match.teamA || !match.teamB) {
+                showToast('대진 팀이 세팅되지 않았습니다.', 'error');
+                return;
+            }
+
+            if (match.scoreA === match.scoreB) {
+                showToast('동점 상황입니다. 승자 판정을 위해 추가 투표를 해주세요.', 'error');
+                return;
+            }
+
+            const winner = match.scoreA > match.scoreB ? match.teamA : match.teamB;
+            match.winner = winner;
+            match.status = 'finished';
+
+            playGoalSound();
+
+            // Advance winner to next bracket level
+            if (activeIdx === 0) {
+                // Match 0 (4모둠 vs 5모둠) winner advances to Match 2 (준결승 2경기 Team B)
+                matches[2].teamB = winner;
+                showModal('🎉 예선전 완료!', `<b>${winner}</b>(이)가 승리하여 준결승 2경기에 진출했습니다!`);
+                state.tournament.activeMatchIndex = 1;
+            } else if (activeIdx === 1) {
+                // Match 1 (1모둠 vs 2모둠) winner advances to Match 3 (결승전 Team A)
+                matches[3].teamA = winner;
+                showModal('🎉 준결승 1경기 완료!', `<b>${winner}</b>(이)가 승리하여 최종 결승전에 진출했습니다!`);
+                state.tournament.activeMatchIndex = 2;
+            } else if (activeIdx === 2) {
+                // Match 2 (3모둠 vs Match 0 winner) winner advances to Match 3 (결승전 Team B)
+                matches[3].teamB = winner;
+                showModal('🎉 준결승 2경기 완료!', `<b>${winner}</b>(이)가 승리하여 최종 결승전에 진출했습니다!`);
+                state.tournament.activeMatchIndex = 3;
+            } else if (activeIdx === 3) {
+                // Final Match Champion!
+                showModal(
+                    '🏆 토너먼트 최종 우승!',
+                    `<div class="space-y-2">
+                        <div class="text-3xl animate-bounce">🥇</div>
+                        <p class="text-base font-bold text-amber-400 font-title">[${winner}]의 급식 순서 결정 안이 최종 우승 타협안으로 선출되었습니다!</p>
+                        <p class="text-xs text-slate-300">민주적 의사 결정 과정을 통해 관용과 타협의 가치를 성공적으로 이끌어냈습니다.</p>
+                    </div>`
+                );
+            }
+
+            renderTournamentBracket();
+            renderTournamentPitch();
+        }
+
+        // Reset Tournament
+        function resetTournament() {
+            state.tournament = {
+                activeMatchIndex: 0,
+                matches: [
+                    { id: 0, name: '8강 예선전', teamA: '4모둠', teamB: '5모둠', scoreA: 0, scoreB: 0, winner: null, status: 'ready' },
+                    { id: 1, name: '준결승 1경기', teamA: '1모둠', teamB: '2모둠', scoreA: 0, scoreB: 0, winner: null, status: 'ready' },
+                    { id: 2, name: '준결승 2경기', teamA: '3모둠', teamB: null, scoreA: 0, scoreB: 0, winner: null, status: 'ready' },
+                    { id: 3, name: '🏆 최종 결승전', teamA: null, teamB: null, scoreA: 0, scoreB: 0, winner: null, status: 'ready' }
+                ]
+            };
+            renderTournamentBracket();
+            renderTournamentPitch();
+            showToast('토너먼트 대진표가 초기화되었습니다.', 'info');
+        }
+
+        // Handle Login Submission
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const grade = document.getElementById('login-grade').value;
+            const classNum = document.getElementById('login-class').value;
+            const number = document.getElementById('login-number').value;
+            const name = document.getElementById('login-name').value.trim();
+            const team = document.getElementById('login-team').value;
+            const role = document.getElementById('login-role').value;
+
+            if (!name) {
+                showToast('이름을 올바르게 입력해주세요.', 'error');
+                return;
+            }
+
+            // Store user in global state
+            state.currentUser = {
+                grade,
+                class: classNum,
+                number,
+                name,
+                team,
+                role,
+                loggedIn: true
+            };
+
+            // Save to LocalStorage
+            localStorage.setItem('debate_user_session', JSON.stringify(state.currentUser));
+
+            // UI Updates
+            updateUserBadgeUI();
+            renderChatLogs();
+            updateStudentRecordText();
+
+            // Play cheer sound
+            playGoalSound();
+
+            // Notify User
+            showModal(
+                '🎉 토론 입장 완료!',
+                `<b>${grade}학년 ${classNum}반 ${number}번 ${name}</b>님,<br><span class="text-amber-400 font-bold">[${team} · ${role}]</span>(으)로 토론 리그에 로그인되었습니다.`
+            );
+
+            // Switch to Chat / Discussion Tab
+            switchTab('chat');
+        }
+
+        // Logout Handle
+        function handleLogout() {
+            state.currentUser = null;
+            localStorage.removeItem('debate_user_session');
+            updateUserBadgeUI();
+            showToast('로그아웃 되었습니다.', 'info');
+            switchTab('login');
+            updateStudentRecordText();
+        }
+
+        // Update User Badge in Header
+        function updateUserBadgeUI() {
+            const badge = document.getElementById('user-badge');
+            const chatTeamTitle = document.getElementById('chat-team-name');
+
+            if (state.currentUser && state.currentUser.loggedIn) {
+                const u = state.currentUser;
+                badge.className = "bg-amber-500/20 border border-amber-500/50 px-3 py-1 rounded-lg text-xs font-bold text-amber-300 flex items-center gap-2 shadow";
+                badge.innerHTML = `
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>${u.grade}-${u.class} ${u.name} <span class="text-slate-400 font-normal">(${u.team} · ${u.role})</span></span>
+                    <button onclick="handleLogout()" class="ml-1 text-[10px] text-rose-400 hover:text-rose-300 underline font-normal">로그아웃</button>
+                `;
+
+                if (chatTeamTitle) {
+                    chatTeamTitle.innerText = u.team;
+                }
+            } else {
+                badge.className = "bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-2";
+                badge.innerHTML = `
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> 미로그인 상태
+                `;
+                if (chatTeamTitle) {
+                    chatTeamTitle.innerText = "1모둠";
+                }
+            }
+        }
+
+        // Tab Switcher
+        function switchTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white";
+            });
+
+            // Show selected tab
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // Highlight active nav button
+            const navBtn = document.getElementById(`nav-${tabId}`);
+            if (navBtn) {
+                navBtn.className = "tab-btn px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 bg-amber-500 text-slate-950 shadow";
+            }
+
+            // Play button click audio
+            playClickSound();
+        }
+
+        // Send Chat Message
+        function sendChatMessage(event) {
+            event.preventDefault();
+
+            if (!state.currentUser) {
+                showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.', 'error');
+                switchTab('login');
+                return;
+            }
+
+            const input = document.getElementById('chat-input-text');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const userTeam = state.currentUser.team;
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const senderLabel = `${state.currentUser.name}(${state.currentUser.role})`;
+
+            if (!state.chatLogs[userTeam]) {
+                state.chatLogs[userTeam] = [];
+            }
+
+            state.chatLogs[userTeam].push({
+                sender: senderLabel,
+                text: text,
+                time: timeStr
+            });
+
+            input.value = '';
+            renderChatLogs();
+            playClickSound();
+        }
+
+        // Render Chat Log
+        function renderChatLogs() {
+            const box = document.getElementById('chat-log-box');
+            if (!box) return;
+
+            const currentTeam = state.currentUser ? state.currentUser.team : '1모둠';
+            const logs = state.chatLogs[currentTeam] || [];
+
+            if (logs.length === 0) {
+                box.innerHTML = `<div class="text-center py-12 text-slate-500">대화 기록이 없습니다. 먼저 메시지를 입력해보세요!</div>`;
+                return;
+            }
+
+            box.innerHTML = logs.map(msg => `
+                <div class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700/60 space-y-1">
+                    <div class="flex justify-between items-center text-[10px]">
+                        <span class="font-bold text-amber-300"><i class="fa-solid fa-user-circle"></i> ${msg.sender}</span>
+                        <span class="text-slate-500">${msg.time}</span>
+                    </div>
+                    <p class="text-slate-200 text-xs">${escapeHtml(msg.text)}</p>
+                </div>
+            `).join('');
+
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Save Proposal
+        function saveProposal(event) {
+            event.preventDefault();
+
+            if (!state.currentUser) {
+                showToast('로그인이 필요한 기능입니다. 먼저 로그인해주세요.', 'error');
+                switchTab('login');
+                return;
+            }
+
+            const title = document.getElementById('prop-title').value.trim();
+            const content = document.getElementById('prop-content').value.trim();
+            const minority = document.getElementById('prop-minority').value.trim();
+            const compromise = document.getElementById('prop-compromise').value.trim();
+
+            const userTeam = state.currentUser.team;
+
+            state.proposals[userTeam] = {
+                title,
+                content,
+                minority,
+                compromise,
+                author: `${state.currentUser.name} (${state.currentUser.role}) 외 팀원`,
+                stars: { tolerance: 5, compromise: 5, minority: 5 }
+            };
+
+            // Update UI
+            document.getElementById('proposal-status-text').innerHTML = `
+                <span class="text-emerald-400 font-bold">✓ [${userTeam}] 제안 안 제출 완료!</span><br>
+                제목: ${escapeHtml(title)}
+            `;
+
+            renderPitchDetail(userTeam);
+            renderEvaluationList();
+            updateStudentRecordText();
+
+            playGoalSound();
+
+            showModal('⚽ 안 제출 완료!', `<b>${userTeam}</b>의 최종 급식 순서 안이 경기장에 등록되었습니다.`);
+            switchTab('pitch');
+        }
+
+        // Pitch Team Select
+        function selectTeamPitch(teamName) {
+            state.activeTeamPitch = teamName;
+            renderPitchDetail(teamName);
+
+            // Trigger speech bubble animation on pitch
+            const token = document.getElementById(`token-${teamName}`);
+            const bubble = document.getElementById('speech-bubble-elem');
+
+            if (token && bubble) {
+                const rect = token.getBoundingClientRect();
+                const parentRect = token.parentElement.parentElement.getBoundingClientRect();
+
+                const left = rect.left - parentRect.left + (rect.width / 2);
+                const top = rect.top - parentRect.top;
+
+                bubble.style.left = `${left}px`;
+                bubble.style.top = `${top}px`;
+
+                document.getElementById('bubble-team-title').innerText = `${teamName} 발언`;
+                const prop = state.proposals[teamName];
+                document.getElementById('bubble-text').innerText = prop ? `"${prop.title}"` : '"저희 안을 제출합니다!"';
+
+                bubble.classList.remove('hidden');
+
+                setTimeout(() => {
+                    bubble.classList.add('hidden');
+                }, 4000);
+            }
+
+            playClickSound();
+        }
+
+        // Render Pitch Panel Detail
+        function renderPitchDetail(teamName) {
+            const titleBox = document.getElementById('detail-team-title');
+            const bodyBox = document.getElementById('detail-body-box');
+
+            if (!titleBox || !bodyBox) return;
+
+            const prop = state.proposals[teamName];
+
+            titleBox.innerHTML = `⚽ ${teamName} 안 심의`;
+
+            if (!prop) {
+                bodyBox.innerHTML = `<div class="text-center py-10 text-slate-500">아직 해당 모둠에서 제안 안을 제출하지 않았습니다.</div>`;
+                return;
+            }
+
+            bodyBox.innerHTML = `
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-[10px] text-amber-400 font-bold">제안 안 제목</span>
+                    <h4 class="font-bold text-white text-sm">${escapeHtml(prop.title)}</h4>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-[10px] text-slate-400 font-bold">핵심 제안 내용</span>
+                    <p class="text-slate-300 leading-relaxed">${escapeHtml(prop.content)}</p>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-emerald-900/60 space-y-1">
+                    <span class="text-[10px] text-emerald-400 font-bold">🛡️ 소수자/배려 대상자 지원 방안</span>
+                    <p class="text-slate-300">${escapeHtml(prop.minority)}</p>
+                </div>
+
+                <div class="bg-slate-900 p-3 rounded-xl border border-amber-900/60 space-y-1">
+                    <span class="text-[10px] text-amber-300 font-bold">🤝 양보 및 타협 가능 지점</span>
+                    <p class="text-slate-300">${escapeHtml(prop.compromise)}</p>
+                </div>
+
+                <div class="text-[10px] text-slate-500 text-right">
+                    작성자: ${escapeHtml(prop.author || '모둠원')}
+                </div>
+            `;
+        }
+
+        // Render Evaluation Tab List
+        function renderEvaluationList() {
+            const box = document.getElementById('evaluation-list-box');
+            if (!box) return;
+
+            const teams = ['1모둠', '2모둠', '3모둠', '4모둠', '5모둠'];
+
+            box.innerHTML = teams.map(t => {
+                const prop = state.proposals[t];
+                if (!prop) return '';
+
+                return `
+                    <div class="bg-slate-800/90 p-4 rounded-xl border border-slate-700/80 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="font-bold text-amber-400">${t} - ${escapeHtml(prop.title)}</span>
+                            <span class="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${prop.author}</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+                            <div class="bg-slate-900/60 p-2 rounded-lg flex justify-between items-center">
+                                <span class="text-slate-300">① 관용 (다름 인정)</span>
+                                <div class="text-amber-400">⭐⭐⭐⭐⭐</div>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded-lg flex justify-between items-center">
+                                <span class="text-slate-300">② 대화와 타협</span>
+                                <div class="text-amber-400">⭐⭐⭐⭐⭐</div>
+                            </div>
+                            <div class="bg-slate-900/60 p-2 rounded-lg flex justify-between items-center">
+                                <span class="text-slate-300">③ 소수자 존중</span>
+                                <div class="text-amber-400">⭐⭐⭐⭐⭐</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Pitch Action Buttons Trigger
+        function triggerPitchAction(type) {
+            if (type === 'shoot') {
+                playWhistleSound();
+                showToast(`⚽ ${state.activeTeamPitch}에서 날카로운 급식 순서 안을 슈팅(제안)했습니다!`, 'info');
+            } else if (type === 'foul') {
+                playWhistleSound();
+                showToast(`🟨 소수자 배려안에 대한 추가 보완이 요구되어 경고 카드가 부여되었습니다.`, 'error');
+            } else if (type === 'goal') {
+                playGoalSound();
+                showToast(`🟩 골! ${state.activeTeamPitch}의 제안이 모든 모둠의 찬성으로 타협 합의에 성공했습니다!`, 'info');
+            }
+        }
+
+        // Update Student Record Text
+        function updateStudentRecordText() {
+            const infoBox = document.getElementById('record-student-info');
+            const roleBox = document.getElementById('record-student-role');
+            const textBox = document.getElementById('record-text-box');
+
+            if (!textBox) return;
+
+            if (!state.currentUser) {
+                infoBox.innerText = '미로그인 상태';
+                roleBox.innerText = '미정';
+                textBox.innerText = '학생 로그인 후 모둠 토의 및 토론 활동을 진행하시면, 학생 개인별 활동 역할과 민주적 의사 결정 태도가 담긴 생활기록부 세부능력 및 특기사항 문구가 자동 생성됩니다.';
+                return;
+            }
+
+            const u = state.currentUser;
+            infoBox.innerText = `${u.grade}학년 ${u.class}반 ${u.number}번 ${u.name}`;
+            roleBox.innerText = `${u.team} · ${u.role}`;
+
+            let roleSpecificDesc = "";
+            if (u.role === '발표자') {
+                roleSpecificDesc = `모둠의 대표 발표자로서 ${u.team}의 급식 순서 제안 안을 명확하고 설득력 있게 전달하였으며, 타 모둠과의 질문에 합리적으로 답변함.`;
+            } else if (u.role === '서기') {
+                roleSpecificDesc = `토론 서기 역할을 맡아 다양한 이견과 소수자 배려 방안을 체계적으로 기록하고 요약하여 모둠 안 완성도를 극대화함.`;
+            } else if (u.role === '전략가') {
+                roleSpecificDesc = `학급 문제 해결 전략가로서 요일별 순환 배식 및 갈등 완화 알고리즘을 논리적으로 기획하여 찬성을 이끌어냄.`;
+            } else {
+                roleSpecificDesc = `수비수(배려 담당)로서 부상 학생, 보건실 이용 학생 등 소수자 학생들의 급식 권리를 적극 대변하며 민주적 관용의 가치를 실천함.`;
+            }
+
+            const recordFullText = `사회 수업 '민주주의와 민주적 생활양식' 단원의 급식 순서 결정 토론 활동에 참여함. ${u.team}의 ${u.role}(으)로서 공동체의 실실적 갈등인 급식 순서 문제를 해결하기 위해 대화와 타협의 원칙을 성실히 이행함. ${roleSpecificDesc} 다수결의 원칙 속에서도 소수의 의견과 배려 대상 학생들의 상황을 차별 없이 반영하고자 노력하는 성숙한 민주 시민 의식을 보임.`;
+
+            textBox.innerText = recordFullText;
+        }
+
+        // Copy Record Text
+        function copyRecordText() {
+            const textBox = document.getElementById('record-text-box');
+            if (!textBox) return;
+
+            navigator.clipboard.writeText(textBox.innerText).then(() => {
+                showToast('📋 생활기록부 문구가 클립보드에 복사되었습니다!', 'info');
+            }).catch(() => {
+                showToast('복사 중 오류가 발생했습니다.', 'error');
+            });
+        }
+
+        // Sound Effects
+        function toggleAudio() {
+            state.soundEnabled = !state.soundEnabled;
+            const btnLabel = document.getElementById('audio-label');
+            if (btnLabel) {
+                btnLabel.innerText = state.soundEnabled ? '소리 ON' : '소리 OFF';
+            }
+            showToast(state.soundEnabled ? '🔊 효과음이 활성화되었습니다.' : '🔇 효과음이 음소거되었습니다.', 'info');
+        }
+
+        function playWhistleSound() {
+            if (!state.soundEnabled) return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (synth) {
+                    synth.triggerAttackRelease("C6", "8n");
+                }
+            } catch(e) {}
+        }
+
+        function playGoalSound() {
+            if (!state.soundEnabled) return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (synth) {
+                    synth.triggerAttackRelease("G5", "4n");
+                }
+            } catch(e) {}
+        }
+
+        function playClickSound() {
+            if (!state.soundEnabled) return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (synth) {
+                    synth.triggerAttackRelease("E5", "16n");
+                }
+            } catch(e) {}
+        }
+
+        // UI Toast Notification helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-rose-900/90 border-rose-500' : 'bg-slate-900/90 border-amber-500';
+            
+            toast.className = `px-4 py-3 rounded-2xl border ${bgColor} text-white text-xs shadow-2xl flex items-center gap-2 animate-toast pointer-events-auto backdrop-blur-md`;
+            toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '⚽'}</span> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3500);
+        }
+
+        // UI Modal helper
+        function showModal(title, message) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-message').innerHTML = message;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        // Utility: HTML Escaping
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+<!-- 기존 </script> 태그 바로 아래, 그리고 </body> 직전에 이 코드를 추가하세요 -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+  // 1. 사용자님의 orderofres 프로젝트 설정 정보
+  const firebaseConfig = {
+    apiKey: "AIzaSyCfUjYm_TeHmDVtK9j323XACphiqIlk0b4", // Firebase 콘솔 -> 프로젝트 설정에서 확인 후 직접 넣어주세요.
+    authDomain: "orderofres.firebaseapp.com",
+    databaseURL: "https://orderofres-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "orderofres",
+    storageBucket: "orderofres.firebasestorage.app",
+    messagingSenderId: "355332364984",
+    appId: "1:355332364984:web:c08f88f347ff27c818b24d" // 웹앱 등록 후 생성된 고유 appId를 직접 넣어주세요.
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 2. 실시간 채팅 쓰기 기능 대체
+  window.sendChatMessage = function(event) {
+    event.preventDefault();
+    if (!state.currentUser) return showToast('로그인이 필요한 기능입니다.', 'error');
+
+    const input = document.getElementById('chat-input-text');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const team = state.currentUser.team;
+    const now = new Date();
+    const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+    // Firebase RTDB에 메시지 저장
+    push(ref(db, `chats/${team}`), {
+      sender: `${state.currentUser.name}(${state.currentUser.role})`,
+      text: text,
+      time: timeStr
+    });
+    input.value = '';
+  };
+
+  // 실시간 채팅 감지 및 로컬 렌더링 동기화
+  onValue(ref(db, 'chats'), (snapshot) => {
+    if (snapshot.exists()) {
+      state.chatLogs = snapshot.val();
+      renderChatLogs();
+    }
+  });
+
+  // 3. 모둠 최종 안 제출 및 실시간 업데이트 대체
+  window.saveProposal = function(event) {
+    event.preventDefault();
+    if (!state.currentUser) return;
+
+    const userTeam = state.currentUser.team;
+    const proposalData = {
+      title: document.getElementById('prop-title').value.trim(),
+      content: document.getElementById('prop-content').value.trim(),
+      minority: document.getElementById('prop-minority').value.trim(),
+      compromise: document.getElementById('prop-compromise').value.trim(),
+      author: `${state.currentUser.name} (${state.currentUser.role}) 외 팀원`,
+      stars: { tolerance: 5, compromise: 5, minority: 5 }
+    };
+
+    // Firebase RTDB에 모둠 안 등록
+    set(ref(db, `proposals/${userTeam}`), proposalData).then(() => {
+      showToast(`⚽ ${userTeam} 안이 성공적으로 제출되었습니다.`, 'info');
+      switchTab('pitch');
+    });
+  };
+
+  // 실시간 제안 안 감지 및 피치 동기화
+  onValue(ref(db, 'proposals'), (snapshot) => {
+    if (snapshot.exists()) {
+      state.proposals = snapshot.val();
+      renderEvaluationList();
+      renderPitchDetail(state.activeTeamPitch);
+    }
+  });
+</script>
+
+</body>
+</html>
